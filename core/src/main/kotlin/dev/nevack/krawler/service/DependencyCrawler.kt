@@ -15,12 +15,20 @@ class DependencyCrawler(
     private val metadataSource: MavenMetadataSource,
     private val versionStrategySelector: VersionStrategySelector,
 ) {
-    suspend fun crawl(config: MavenKrawlerConfig, inputFile: Path): CrawlReport {
+    suspend fun crawl(
+        config: MavenKrawlerConfig,
+        inputFile: Path,
+        progressListener: CrawlProgressListener? = null,
+    ): CrawlReport {
         val dependencies = inputReader.read(inputFile)
         val router = RepositoryRouter(config.repositories)
 
-        val updates = dependencies.mapNotNull { dependency ->
-            findUpdate(dependency, router, config.strategy)
+        val updates = dependencies.mapIndexedNotNull { index, dependency ->
+            val sequence = index + 1
+            progressListener?.onEvent(CrawlProgressEvent.DependencyStarted(sequence, dependencies.size, dependency))
+            val update = findUpdate(dependency, router, config.strategy)
+            progressListener?.onEvent(CrawlProgressEvent.DependencyFinished(sequence, dependencies.size, dependency, update))
+            update
         }
 
         return CrawlReport(
@@ -62,4 +70,23 @@ class DependencyCrawler(
             repositories = repositories,
         )
     }
+}
+
+fun interface CrawlProgressListener {
+    fun onEvent(event: CrawlProgressEvent)
+}
+
+sealed interface CrawlProgressEvent {
+    data class DependencyStarted(
+        val current: Int,
+        val total: Int,
+        val dependency: Gav,
+    ) : CrawlProgressEvent
+
+    data class DependencyFinished(
+        val current: Int,
+        val total: Int,
+        val dependency: Gav,
+        val update: AvailableUpdate?,
+    ) : CrawlProgressEvent
 }

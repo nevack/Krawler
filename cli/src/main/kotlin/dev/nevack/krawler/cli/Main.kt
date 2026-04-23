@@ -10,6 +10,8 @@ import dev.nevack.krawler.config.MavenKrawlerConfigLoader
 import dev.nevack.krawler.input.DependencyInputReader
 import dev.nevack.krawler.maven.KtorMavenMetadataSource
 import dev.nevack.krawler.report.ReportOutputWriter
+import dev.nevack.krawler.service.CrawlProgressEvent
+import dev.nevack.krawler.service.CrawlProgressListener
 import dev.nevack.krawler.service.DependencyCrawler
 import dev.nevack.krawler.version.VersionStrategySelector
 import io.ktor.client.HttpClient
@@ -39,7 +41,11 @@ private class KrawlerCommand : CliktCommand(name = "krawler") {
                     metadataSource = KtorMavenMetadataSource(client),
                     versionStrategySelector = VersionStrategySelector(),
                 )
-                val report = crawler.crawl(config, inputPath)
+                val report = crawler.crawl(
+                    config,
+                    inputPath,
+                    progressListener = interactiveProgressListener(),
+                )
                 val writer = ReportOutputWriter()
                 writer.writeTargets(report, config.output.targets, resolvePath = {
                     resolveAgainstConfig(configPath, it)
@@ -52,6 +58,32 @@ private class KrawlerCommand : CliktCommand(name = "krawler") {
             client.close()
         }
     }
+
+    private fun interactiveProgressListener(): CrawlProgressListener? {
+        if (!isInteractiveSession()) {
+            return null
+        }
+
+        return CrawlProgressListener { event ->
+            when (event) {
+                is CrawlProgressEvent.DependencyStarted -> {
+                    echo(
+                        "[${event.current}/${event.total}] Resolving ${event.dependency.coordinate}",
+                        err = true,
+                    )
+                }
+
+                is CrawlProgressEvent.DependencyFinished -> {
+                    val message = event.update?.let {
+                        "[${event.current}/${event.total}] Update ${it.dependency.ga} ${it.dependency.version} -> ${it.targetVersion}"
+                    } ?: "[${event.current}/${event.total}] No update ${event.dependency.ga}"
+                    echo(message, err = true)
+                }
+            }
+        }
+    }
+
+    private fun isInteractiveSession(): Boolean = System.console() != null
 }
 
 private fun resolveAgainstConfig(configPath: Path, targetPath: String): Path =
