@@ -1,4 +1,4 @@
-package dev.nevack.mavenkrawler.maven
+package dev.nevack.krawler.maven
 
 import org.w3c.dom.Element
 import org.xml.sax.InputSource

@@ -1,13 +1,13 @@
-package dev.nevack.mavenkrawler.service
+package dev.nevack.krawler.service
 
-import dev.nevack.mavenkrawler.config.MavenKrawlerConfig
-import dev.nevack.mavenkrawler.input.DependencyInputReader
-import dev.nevack.mavenkrawler.maven.MavenMetadataSource
-import dev.nevack.mavenkrawler.model.AvailableUpdate
-import dev.nevack.mavenkrawler.model.CrawlReport
-import dev.nevack.mavenkrawler.model.Gav
-import dev.nevack.mavenkrawler.repo.RepositoryRouter
-import dev.nevack.mavenkrawler.version.VersionStrategySelector
+import dev.nevack.krawler.config.MavenKrawlerConfig
+import dev.nevack.krawler.input.DependencyInputReader
+import dev.nevack.krawler.maven.MavenMetadataSource
+import dev.nevack.krawler.model.AvailableUpdate
+import dev.nevack.krawler.model.CrawlReport
+import dev.nevack.krawler.model.Gav
+import dev.nevack.krawler.repo.RepositoryRouter
+import dev.nevack.krawler.version.VersionStrategySelector
 import java.nio.file.Path
 
 class DependencyCrawler(
@@ -33,7 +33,7 @@ class DependencyCrawler(
     private suspend fun findUpdate(
         dependency: Gav,
         router: RepositoryRouter,
-        strategy: dev.nevack.mavenkrawler.config.UpdateStrategy,
+        strategy: dev.nevack.krawler.config.UpdateStrategy,
     ): AvailableUpdate? {
         val versionsByRepository = linkedMapOf<String, LinkedHashSet<String>>()
 

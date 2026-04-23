@@ -1,4 +1,4 @@
-package dev.nevack.mavenkrawler.config
+package dev.nevack.krawler.config
 
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext

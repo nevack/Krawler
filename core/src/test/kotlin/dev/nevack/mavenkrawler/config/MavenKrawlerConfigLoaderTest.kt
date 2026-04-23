@@ -1,4 +1,4 @@
-package dev.nevack.mavenkrawler.config
+package dev.nevack.krawler.config
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -8,7 +8,7 @@ import java.nio.file.Files
 class MavenKrawlerConfigLoaderTest {
     @Test
     fun `loads yaml config with env-backed auth`() {
-        val configFile = Files.createTempFile("mavenkrawler", ".yml")
+        val configFile = Files.createTempFile("krawler", ".yml")
         Files.writeString(
             configFile,
             """

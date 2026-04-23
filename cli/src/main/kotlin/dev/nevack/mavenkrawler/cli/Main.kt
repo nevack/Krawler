@@ -1,13 +1,13 @@
-package dev.nevack.mavenkrawler.cli
+package dev.nevack.krawler.cli
 
-import dev.nevack.mavenkrawler.config.MavenKrawlerConfigLoader
-import dev.nevack.mavenkrawler.maven.KtorMavenMetadataSource
-import dev.nevack.mavenkrawler.report.ReportOutputWriter
-import dev.nevack.mavenkrawler.service.DependencyCrawler
-import dev.nevack.mavenkrawler.input.DependencyInputReader
-import dev.nevack.mavenkrawler.version.VersionStrategySelector
+import dev.nevack.krawler.config.MavenKrawlerConfigLoader
+import dev.nevack.krawler.maven.KtorMavenMetadataSource
+import dev.nevack.krawler.report.ReportOutputWriter
+import dev.nevack.krawler.service.DependencyCrawler
+import dev.nevack.krawler.input.DependencyInputReader
+import dev.nevack.krawler.version.VersionStrategySelector
 import io.ktor.client.HttpClient
-import io.ktor.client.engine.cio.CIO
+import io.ktor.client.engine.okhttp.OkHttp
 import kotlinx.coroutines.runBlocking
 import java.nio.file.Path
 import kotlin.system.exitProcess
@@ -18,7 +18,7 @@ fun main(args: Array<String>) {
         exitProcess(1)
     }
 
-    val client = HttpClient(CIO)
+    val client = HttpClient(OkHttp)
     try {
         runBlocking {
             val loader = MavenKrawlerConfigLoader()
@@ -56,7 +56,7 @@ private fun parseConfigPath(args: Array<String>): Path? {
 }
 
 private fun printUsage() {
-    println("Usage: java -jar mavenkrawler-all.jar --config path/to/config.yml")
+    println("Usage: java -jar krawler-all.jar --config path/to/config.yml")
 }
 
 private fun resolveAgainstConfig(configPath: Path, targetPath: String): Path =

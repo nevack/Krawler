@@ -1,4 +1,4 @@
-package dev.nevack.mavenkrawler.input
+package dev.nevack.krawler.input
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
@@ -8,7 +8,7 @@ import java.nio.file.Files
 class DependencyInputReaderTest {
     @Test
     fun `reads dependencies and ignores comments`() {
-        val input = Files.createTempFile("mavenkrawler", ".txt")
+        val input = Files.createTempFile("krawler", ".txt")
         Files.writeString(
             input,
             """
@@ -27,7 +27,7 @@ class DependencyInputReaderTest {
 
     @Test
     fun `fails on invalid gav`() {
-        val input = Files.createTempFile("mavenkrawler", ".txt")
+        val input = Files.createTempFile("krawler", ".txt")
         Files.writeString(input, "androidx.core:core-ktx")
 
         assertThrows(IllegalArgumentException::class.java) {

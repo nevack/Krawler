@@ -1,4 +1,6 @@
-package dev.nevack.mavenkrawler.config
+package dev.nevack.krawler.config
+
+import kotlinx.serialization.Serializable
 
 data class MavenKrawlerConfig(
     val inputFile: String,
@@ -7,6 +9,7 @@ data class MavenKrawlerConfig(
     val output: OutputConfig = OutputConfig(),
 )
 
+@Serializable
 enum class UpdateStrategy {
     LATEST,
     LATEST_SNAPSHOT,

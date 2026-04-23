@@ -1,10 +1,10 @@
-package dev.nevack.mavenkrawler.maven
+package dev.nevack.krawler.maven
 
-import dev.nevack.mavenkrawler.config.BasicAuthConfig
-import dev.nevack.mavenkrawler.config.ConfigValue
-import dev.nevack.mavenkrawler.config.RepositoryAuthConfig
-import dev.nevack.mavenkrawler.config.RepositoryConfig
-import dev.nevack.mavenkrawler.model.Gav
+import dev.nevack.krawler.config.BasicAuthConfig
+import dev.nevack.krawler.config.ConfigValue
+import dev.nevack.krawler.config.RepositoryAuthConfig
+import dev.nevack.krawler.config.RepositoryConfig
+import dev.nevack.krawler.model.Gav
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond

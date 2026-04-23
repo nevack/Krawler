@@ -1,6 +1,6 @@
-package dev.nevack.mavenkrawler.version
+package dev.nevack.krawler.version
 
-import dev.nevack.mavenkrawler.config.UpdateStrategy
+import dev.nevack.krawler.config.UpdateStrategy
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 

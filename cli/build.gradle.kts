@@ -8,13 +8,13 @@ plugins {
 dependencies {
     implementation(project(":core"))
     implementation(libs.kotlinx.coroutines.core)
-    implementation(libs.ktor.client.cio)
     implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.okhttp)
     runtimeOnly(libs.slf4j.nop)
 }
 
 application {
-    mainClass = "dev.nevack.mavenkrawler.cli.MainKt"
+    mainClass = "dev.nevack.krawler.cli.MainKt"
 }
 
 val fatJar by tasks.registering(Jar::class) {

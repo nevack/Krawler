@@ -1,5 +1,8 @@
-package dev.nevack.mavenkrawler.model
+package dev.nevack.krawler.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Gav(
     val groupId: String,
     val artifactId: String,

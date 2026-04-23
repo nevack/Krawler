@@ -1,4 +1,4 @@
-package dev.nevack.mavenkrawler.repo
+package dev.nevack.krawler.repo
 
 object GroupPatternMatcher {
     fun matches(groupId: String, pattern: String): Boolean = when {

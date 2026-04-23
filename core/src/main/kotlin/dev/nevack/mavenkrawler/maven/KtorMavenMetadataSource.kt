@@ -1,8 +1,8 @@
-package dev.nevack.mavenkrawler.maven
+package dev.nevack.krawler.maven
 
-import dev.nevack.mavenkrawler.config.RepositoryConfig
-import dev.nevack.mavenkrawler.config.ResolvedRepositoryAuth
-import dev.nevack.mavenkrawler.model.Gav
+import dev.nevack.krawler.config.RepositoryConfig
+import dev.nevack.krawler.config.ResolvedRepositoryAuth
+import dev.nevack.krawler.model.Gav
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get

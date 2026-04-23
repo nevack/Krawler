@@ -1,4 +1,4 @@
-package dev.nevack.mavenkrawler.maven
+package dev.nevack.krawler.maven
 
 data class MavenMetadata(
     val versions: List<String> = emptyList(),

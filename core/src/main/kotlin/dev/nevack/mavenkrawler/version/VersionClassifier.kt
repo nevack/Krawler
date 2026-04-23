@@ -1,4 +1,4 @@
-package dev.nevack.mavenkrawler.version
+package dev.nevack.krawler.version
 
 object VersionClassifier {
     private val prereleaseMarker = Regex("(?i)(alpha|beta|milestone|preview|rc|cr|m\\d|a\\d|b\\d)")

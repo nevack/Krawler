@@ -1,9 +1,9 @@
-package dev.nevack.mavenkrawler.report
+package dev.nevack.krawler.report
 
-import dev.nevack.mavenkrawler.config.UpdateStrategy
-import dev.nevack.mavenkrawler.model.AvailableUpdate
-import dev.nevack.mavenkrawler.model.CrawlReport
-import dev.nevack.mavenkrawler.model.Gav
+import dev.nevack.krawler.config.UpdateStrategy
+import dev.nevack.krawler.model.AvailableUpdate
+import dev.nevack.krawler.model.CrawlReport
+import dev.nevack.krawler.model.Gav
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 

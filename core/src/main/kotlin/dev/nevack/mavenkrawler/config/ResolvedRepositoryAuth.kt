@@ -1,4 +1,4 @@
-package dev.nevack.mavenkrawler.config
+package dev.nevack.krawler.config
 
 sealed interface ResolvedRepositoryAuth {
     data class Basic(

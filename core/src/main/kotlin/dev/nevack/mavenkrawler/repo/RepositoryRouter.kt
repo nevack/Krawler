@@ -1,6 +1,6 @@
-package dev.nevack.mavenkrawler.repo
+package dev.nevack.krawler.repo
 
-import dev.nevack.mavenkrawler.config.RepositoryConfig
+import dev.nevack.krawler.config.RepositoryConfig
 
 class RepositoryRouter(
     private val repositories: List<RepositoryConfig>,

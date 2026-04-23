@@ -1,21 +1,23 @@
-package dev.nevack.mavenkrawler.report
+package dev.nevack.krawler.report
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import dev.nevack.mavenkrawler.config.OutputFormat
-import dev.nevack.mavenkrawler.model.CrawlReport
-import java.nio.file.Files
+import dev.nevack.krawler.config.OutputFormat
+import dev.nevack.krawler.model.CrawlReport
 import java.nio.file.Path
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import kotlin.io.path.createDirectories
 import kotlin.io.path.writeText
 
 class ReportOutputWriter(
     private val tableReportRenderer: TableReportRenderer = TableReportRenderer(),
 ) {
-    private val jsonMapper = jacksonObjectMapper()
+    private val json = Json {
+        prettyPrint = true
+    }
 
     fun render(report: CrawlReport, format: OutputFormat): String = when (format) {
         OutputFormat.TABLE -> tableReportRenderer.render(report)
-        OutputFormat.JSON -> jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(report)
+        OutputFormat.JSON -> json.encodeToString(report)
     }
 
     fun write(rendered: String, outputFile: Path?) {

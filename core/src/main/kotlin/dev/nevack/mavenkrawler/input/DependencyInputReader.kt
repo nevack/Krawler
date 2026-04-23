@@ -1,6 +1,6 @@
-package dev.nevack.mavenkrawler.input
+package dev.nevack.krawler.input
 
-import dev.nevack.mavenkrawler.model.Gav
+import dev.nevack.krawler.model.Gav
 import java.nio.file.Path
 import kotlin.io.path.readLines
 

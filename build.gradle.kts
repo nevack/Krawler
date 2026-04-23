@@ -1,4 +1,4 @@
-group = "dev.nevack.mavenkrawler"
+group = "dev.nevack.krawler"
 version = "0.1.0"
 
 subprojects {

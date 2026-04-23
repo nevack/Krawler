@@ -1,4 +1,4 @@
-package dev.nevack.mavenkrawler.maven
+package dev.nevack.krawler.maven
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test

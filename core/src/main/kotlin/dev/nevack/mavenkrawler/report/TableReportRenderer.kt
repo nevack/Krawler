@@ -1,6 +1,6 @@
-package dev.nevack.mavenkrawler.report
+package dev.nevack.krawler.report
 
-import dev.nevack.mavenkrawler.model.CrawlReport
+import dev.nevack.krawler.model.CrawlReport
 
 class TableReportRenderer {
     fun render(report: CrawlReport): String {
