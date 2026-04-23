@@ -64,6 +64,10 @@ data class BearerAuthConfig(
 )
 
 data class OutputConfig(
+    val targets: List<OutputTarget> = listOf(OutputTarget()),
+)
+
+data class OutputTarget(
     val format: OutputFormat = OutputFormat.TABLE,
     val file: String? = null,
 )

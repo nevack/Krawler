@@ -21,8 +21,7 @@ class MavenKrawlerConfigLoader {
 
         val normalized = rootNode.deepCopy().apply {
             put("strategy", UpdateStrategy.fromConfigValue(path("strategy").asText("latest")).name)
-            val outputNode = path("output") as? ObjectNode ?: putObject("output")
-            outputNode.put("format", OutputFormat.fromConfigValue(outputNode.path("format").asText("table")).name)
+            set<JsonNode>("output", normalizeOutput(path("output")))
             set<JsonNode>("repositories", normalizeRepositories(path("repositories")))
         }
 
@@ -42,5 +41,32 @@ class MavenKrawlerConfigLoader {
                 repositories.add(normalized)
             }
         }
+    }
+
+    private fun normalizeOutput(node: JsonNode): ObjectNode {
+        val outputNode = (node as? ObjectNode)?.deepCopy() ?: mapper.createObjectNode()
+        val normalizedTargets = when (val targetsNode = outputNode.path("targets")) {
+            is ArrayNode -> normalizeOutputTargets(targetsNode)
+            else -> mapper.createArrayNode().add(normalizeLegacyOutputTarget(outputNode))
+        }
+
+        return mapper.createObjectNode().apply {
+            set<JsonNode>("targets", normalizedTargets)
+        }
+    }
+
+    private fun normalizeOutputTargets(node: ArrayNode): ArrayNode {
+        require(node.size() > 0) { "Output targets must not be empty" }
+
+        return mapper.createArrayNode().also { targets ->
+            node.forEach { targetNode ->
+                require(targetNode is ObjectNode) { "Output targets must be YAML objects" }
+                targets.add(normalizeLegacyOutputTarget(targetNode))
+            }
+        }
+    }
+
+    private fun normalizeLegacyOutputTarget(node: ObjectNode): ObjectNode = node.deepCopy().apply {
+        put("format", OutputFormat.fromConfigValue(path("format").asText("table")).name)
     }
 }

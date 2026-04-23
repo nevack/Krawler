@@ -1,6 +1,7 @@
 package dev.nevack.krawler.report
 
 import dev.nevack.krawler.config.OutputFormat
+import dev.nevack.krawler.config.OutputTarget
 import dev.nevack.krawler.model.CrawlReport
 import java.nio.file.Path
 import kotlinx.serialization.encodeToString
@@ -20,9 +21,20 @@ class ReportOutputWriter(
         OutputFormat.JSON -> json.encodeToString(report)
     }
 
-    fun write(rendered: String, outputFile: Path?) {
+    fun writeTargets(
+        report: CrawlReport,
+        targets: List<OutputTarget>,
+        resolvePath: (String) -> Path,
+        stdout: (String) -> Unit = ::println,
+    ) {
+        targets.forEach { target ->
+            write(render(report, target.format), target.file?.let(resolvePath), stdout)
+        }
+    }
+
+    private fun write(rendered: String, outputFile: Path?, stdout: (String) -> Unit) {
         if (outputFile == null) {
-            println(rendered)
+            stdout(rendered)
             return
         }
 

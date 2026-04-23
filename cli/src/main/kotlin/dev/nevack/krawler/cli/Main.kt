@@ -30,9 +30,9 @@ fun main(args: Array<String>) {
             )
             val report = crawler.crawl(config, cliArguments.inputPath)
             val writer = ReportOutputWriter()
-            val rendered = writer.render(report, config.output.format)
-            val outputPath = config.output.file?.let { resolveAgainstConfig(cliArguments.configPath, it) }
-            writer.write(rendered, outputPath)
+            writer.writeTargets(report, config.output.targets, resolvePath = {
+                resolveAgainstConfig(cliArguments.configPath, it)
+            })
         }
     } catch (exception: Exception) {
         System.err.println(exception.message ?: exception::class.simpleName.orEmpty())

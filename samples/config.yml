@@ -10,4 +10,7 @@ repositories:
     url: https://repo1.maven.org/maven2
 
 output:
-  format: table
+  targets:
+    - format: table
+    - format: json
+      file: reports/updates.json
