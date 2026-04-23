@@ -1,0 +1,12 @@
+androidx.annotation:annotation:1.10.0-rc02
+androidx.core:core-ktx:1.18.0
+androidx.activity:activity-ktx:1.13.0-beta03
+androidx.fragment:fragment-ktx:1.8.9
+androidx.appcompat:appcompat:1.7.1-alpha09
+androidx.appcompat:appcompat-resources:1.7.1
+androidx.lifecycle:lifecycle-common:2.10.0
+androidx.lifecycle:lifecycle-livedata-core:2.10.0
+androidx.lifecycle:lifecycle-livedata:2.10.0
+androidx.lifecycle:lifecycle-viewmodel:2.10.0
+androidx.lifecycle:lifecycle-viewmodel-savedstate:2.10.0
+androidx.recyclerview:recyclerview:1.4.0

@@ -1,0 +1,14 @@
+inputFile: dependencies.txt
+strategy: latest-minor
+
+repositories:
+  - id: google
+    url: https://dl.google.com/dl/android/maven2
+    includeGroups:
+      - androidx.
+      - com.google.android.
+  - id: central
+    url: https://repo1.maven.org/maven2
+
+output:
+  format: table

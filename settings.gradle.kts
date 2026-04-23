@@ -7,14 +7,17 @@
  */
 
 pluginManagement {
-    // Include 'plugins build' to define convention plugins.
     includeBuild("build-logic")
+
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+    }
 }
 
 plugins {
-    // Apply the foojay-resolver plugin to allow automatic download of JDKs
     id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
 
 rootProject.name = "MavenKrawler"
-include("app", "list", "utilities")
+include("core", "cli")
