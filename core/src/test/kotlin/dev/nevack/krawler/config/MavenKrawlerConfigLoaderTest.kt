@@ -12,7 +12,6 @@ class MavenKrawlerConfigLoaderTest {
         Files.writeString(
             configFile,
             """
-            inputFile: deps.txt
             strategy: latest-minor
             repositories:
               - id: google
@@ -32,7 +31,6 @@ class MavenKrawlerConfigLoaderTest {
 
         val config = MavenKrawlerConfigLoader().load(configFile)
 
-        assertEquals("deps.txt", config.inputFile)
         assertEquals(UpdateStrategy.LATEST_MINOR, config.strategy)
         assertEquals(OutputFormat.JSON, config.output.format)
         assertEquals("reports/updates.json", config.output.file)

@@ -13,7 +13,7 @@ import java.nio.file.Path
 import kotlin.system.exitProcess
 
 fun main(args: Array<String>) {
-    val configPath = parseConfigPath(args) ?: run {
+    val cliArguments = parseArguments(args) ?: run {
         printUsage()
         exitProcess(1)
     }
@@ -22,16 +22,16 @@ fun main(args: Array<String>) {
     try {
         runBlocking {
             val loader = MavenKrawlerConfigLoader()
-            val config = loader.load(configPath)
+            val config = loader.load(cliArguments.configPath)
             val crawler = DependencyCrawler(
                 inputReader = DependencyInputReader(),
                 metadataSource = KtorMavenMetadataSource(client),
                 versionStrategySelector = VersionStrategySelector(),
             )
-            val report = crawler.crawl(config, configPath)
+            val report = crawler.crawl(config, cliArguments.inputPath)
             val writer = ReportOutputWriter()
             val rendered = writer.render(report, config.output.format)
-            val outputPath = config.output.file?.let { resolveAgainstConfig(configPath, it) }
+            val outputPath = config.output.file?.let { resolveAgainstConfig(cliArguments.configPath, it) }
             writer.write(rendered, outputPath)
         }
     } catch (exception: Exception) {
@@ -42,21 +42,43 @@ fun main(args: Array<String>) {
     }
 }
 
-private fun parseConfigPath(args: Array<String>): Path? {
+private data class CliArguments(
+    val configPath: Path,
+    val inputPath: Path,
+)
+
+private fun parseArguments(args: Array<String>): CliArguments? {
     if (args.size == 1 && args[0] == "--help") {
         printUsage()
         exitProcess(0)
     }
 
-    return when {
-        args.size == 2 && args[0] == "--config" -> Path.of(args[1])
-        args.size == 1 -> Path.of(args[0])
-        else -> null
+    if (args.size != 4) {
+        return null
+    }
+
+    var configPath: Path? = null
+    var inputPath: Path? = null
+
+    for (index in args.indices step 2) {
+        val option = args[index]
+        val value = args.getOrNull(index + 1) ?: return null
+        when (option) {
+            "--config" -> configPath = Path.of(value)
+            "--input" -> inputPath = Path.of(value)
+            else -> return null
+        }
+    }
+
+    return if (configPath != null && inputPath != null) {
+        CliArguments(configPath = configPath, inputPath = inputPath)
+    } else {
+        null
     }
 }
 
 private fun printUsage() {
-    println("Usage: java -jar krawler-all.jar --config path/to/config.yml")
+    println("Usage: java -jar krawler-all.jar --config path/to/config.yml --input path/to/dependencies.txt")
 }
 
 private fun resolveAgainstConfig(configPath: Path, targetPath: String): Path =

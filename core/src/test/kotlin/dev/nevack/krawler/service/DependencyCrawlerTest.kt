@@ -34,14 +34,13 @@ class DependencyCrawlerTest {
 
         val report = crawler.crawl(
             MavenKrawlerConfig(
-                inputFile = "deps.txt",
                 strategy = UpdateStrategy.LATEST,
                 repositories = listOf(
                     RepositoryConfig(id = "google", url = "https://google.example", includeGroups = listOf("androidx.")),
                     RepositoryConfig(id = "mirror", url = "https://mirror.example"),
                 ),
             ),
-            configPath = configFile,
+            inputFile = inputFile,
         )
 
         assertEquals(1, report.updates.size)

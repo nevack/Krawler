@@ -3,7 +3,6 @@ package dev.nevack.krawler.config
 import kotlinx.serialization.Serializable
 
 data class MavenKrawlerConfig(
-    val inputFile: String,
     val strategy: UpdateStrategy = UpdateStrategy.LATEST,
     val repositories: List<RepositoryConfig>,
     val output: OutputConfig = OutputConfig(),

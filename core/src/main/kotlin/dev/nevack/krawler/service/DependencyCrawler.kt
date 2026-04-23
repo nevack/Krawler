@@ -15,8 +15,8 @@ class DependencyCrawler(
     private val metadataSource: MavenMetadataSource,
     private val versionStrategySelector: VersionStrategySelector,
 ) {
-    suspend fun crawl(config: MavenKrawlerConfig, configPath: Path): CrawlReport {
-        val dependencies = inputReader.read(resolveAgainstConfig(configPath, config.inputFile))
+    suspend fun crawl(config: MavenKrawlerConfig, inputFile: Path): CrawlReport {
+        val dependencies = inputReader.read(inputFile)
         val router = RepositoryRouter(config.repositories)
 
         val updates = dependencies.mapNotNull { dependency ->
@@ -62,7 +62,4 @@ class DependencyCrawler(
             repositories = repositories,
         )
     }
-
-    private fun resolveAgainstConfig(configPath: Path, targetPath: String): Path =
-        configPath.parent?.resolve(targetPath)?.normalize() ?: Path.of(targetPath)
 }
