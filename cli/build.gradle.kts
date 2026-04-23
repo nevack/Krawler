@@ -6,6 +6,7 @@ plugins {
 }
 
 dependencies {
+    implementation(libs.clikt)
     implementation(project(":core"))
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.ktor.client.core)

@@ -1,84 +1,57 @@
 package dev.nevack.krawler.cli
 
+import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.ProgramResult
+import com.github.ajalt.clikt.core.main
+import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.clikt.parameters.options.required
+import com.github.ajalt.clikt.parameters.types.path
 import dev.nevack.krawler.config.MavenKrawlerConfigLoader
+import dev.nevack.krawler.input.DependencyInputReader
 import dev.nevack.krawler.maven.KtorMavenMetadataSource
 import dev.nevack.krawler.report.ReportOutputWriter
 import dev.nevack.krawler.service.DependencyCrawler
-import dev.nevack.krawler.input.DependencyInputReader
 import dev.nevack.krawler.version.VersionStrategySelector
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import kotlinx.coroutines.runBlocking
 import java.nio.file.Path
-import kotlin.system.exitProcess
 
-fun main(args: Array<String>) {
-    val cliArguments = parseArguments(args) ?: run {
-        printUsage()
-        exitProcess(1)
-    }
+fun main(args: Array<String>) = KrawlerCommand().main(args)
 
-    val client = HttpClient(OkHttp)
-    try {
-        runBlocking {
-            val loader = MavenKrawlerConfigLoader()
-            val config = loader.load(cliArguments.configPath)
-            val crawler = DependencyCrawler(
-                inputReader = DependencyInputReader(),
-                metadataSource = KtorMavenMetadataSource(client),
-                versionStrategySelector = VersionStrategySelector(),
-            )
-            val report = crawler.crawl(config, cliArguments.inputPath)
-            val writer = ReportOutputWriter()
-            writer.writeTargets(report, config.output.targets, resolvePath = {
-                resolveAgainstConfig(cliArguments.configPath, it)
-            })
-        }
-    } catch (exception: Exception) {
-        System.err.println(exception.message ?: exception::class.simpleName.orEmpty())
-        exitProcess(1)
-    } finally {
-        client.close()
-    }
-}
+private class KrawlerCommand : CliktCommand(name = "krawler") {
+    private val configPath by option("--config", help = "Path to YAML config file")
+        .path(mustExist = true, canBeDir = false, mustBeReadable = true)
+        .required()
 
-private data class CliArguments(
-    val configPath: Path,
-    val inputPath: Path,
-)
+    private val inputPath by option("--input", help = "Path to dependency input file")
+        .path(mustExist = true, canBeDir = false, mustBeReadable = true)
+        .required()
 
-private fun parseArguments(args: Array<String>): CliArguments? {
-    if (args.size == 1 && args[0] == "--help") {
-        printUsage()
-        exitProcess(0)
-    }
-
-    if (args.size != 4) {
-        return null
-    }
-
-    var configPath: Path? = null
-    var inputPath: Path? = null
-
-    for (index in args.indices step 2) {
-        val option = args[index]
-        val value = args.getOrNull(index + 1) ?: return null
-        when (option) {
-            "--config" -> configPath = Path.of(value)
-            "--input" -> inputPath = Path.of(value)
-            else -> return null
+    override fun run() {
+        val client = HttpClient(OkHttp)
+        try {
+            runBlocking {
+                val loader = MavenKrawlerConfigLoader()
+                val config = loader.load(configPath)
+                val crawler = DependencyCrawler(
+                    inputReader = DependencyInputReader(),
+                    metadataSource = KtorMavenMetadataSource(client),
+                    versionStrategySelector = VersionStrategySelector(),
+                )
+                val report = crawler.crawl(config, inputPath)
+                val writer = ReportOutputWriter()
+                writer.writeTargets(report, config.output.targets, resolvePath = {
+                    resolveAgainstConfig(configPath, it)
+                }, stdout = ::echo)
+            }
+        } catch (exception: Exception) {
+            echo(exception.message ?: exception::class.simpleName.orEmpty(), err = true)
+            throw ProgramResult(1)
+        } finally {
+            client.close()
         }
     }
-
-    return if (configPath != null && inputPath != null) {
-        CliArguments(configPath = configPath, inputPath = inputPath)
-    } else {
-        null
-    }
-}
-
-private fun printUsage() {
-    println("Usage: java -jar krawler-all.jar --config path/to/config.yml --input path/to/dependencies.txt")
 }
 
 private fun resolveAgainstConfig(configPath: Path, targetPath: String): Path =
