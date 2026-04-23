@@ -9,6 +9,11 @@ import dev.nevack.krawler.model.Gav
 import dev.nevack.krawler.repo.RepositoryRouter
 import dev.nevack.krawler.version.VersionStrategySelector
 import java.nio.file.Path
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 class DependencyCrawler(
     private val inputReader: DependencyInputReader,
@@ -19,19 +24,26 @@ class DependencyCrawler(
         config: MavenKrawlerConfig,
         inputFile: Path,
         progressListener: CrawlProgressListener? = null,
-    ): CrawlReport {
+    ): CrawlReport = coroutineScope {
         val dependencies = inputReader.read(inputFile)
         val router = RepositoryRouter(config.repositories)
+        val progressLock = Mutex()
 
-        val updates = dependencies.mapIndexedNotNull { index, dependency ->
-            val sequence = index + 1
-            progressListener?.onEvent(CrawlProgressEvent.DependencyStarted(sequence, dependencies.size, dependency))
-            val update = findUpdate(dependency, router, config.strategy)
-            progressListener?.onEvent(CrawlProgressEvent.DependencyFinished(sequence, dependencies.size, dependency, update))
-            update
-        }
+        val updates = dependencies.mapIndexed { index, dependency ->
+            async {
+                val sequence = index + 1
+                emitProgress(progressListener, progressLock) {
+                    CrawlProgressEvent.DependencyStarted(sequence, dependencies.size, dependency)
+                }
+                val update = findUpdate(dependency, router, config.strategy)
+                emitProgress(progressListener, progressLock) {
+                    CrawlProgressEvent.DependencyFinished(sequence, dependencies.size, dependency, update)
+                }
+                update
+            }
+        }.awaitAll().filterNotNull()
 
-        return CrawlReport(
+        CrawlReport(
             strategy = config.strategy,
             checkedDependencies = dependencies.size,
             updates = updates,
@@ -42,33 +54,53 @@ class DependencyCrawler(
         dependency: Gav,
         router: RepositoryRouter,
         strategy: dev.nevack.krawler.config.UpdateStrategy,
-    ): AvailableUpdate? {
-        val versionsByRepository = linkedMapOf<String, LinkedHashSet<String>>()
-
-        for (repository in router.repositoriesFor(dependency.groupId)) {
-            val metadata = metadataSource.fetch(repository, dependency) ?: continue
-            val versions = metadata.allVersions()
-            if (versions.isNotEmpty()) {
-                versionsByRepository.getOrPut(repository.id) { linkedSetOf() }.addAll(versions)
+    ): AvailableUpdate? = coroutineScope {
+        val versionsByRepository = router.repositoriesFor(dependency.groupId)
+            .map { repository ->
+                async {
+                    val metadata = metadataSource.fetch(repository, dependency) ?: return@async null
+                    val versions = metadata.allVersions()
+                    if (versions.isEmpty()) {
+                        null
+                    } else {
+                        repository.id to LinkedHashSet(versions)
+                    }
+                }
             }
-        }
+            .awaitAll()
+            .filterNotNull()
+            .associateTo(linkedMapOf()) { it }
 
         if (versionsByRepository.isEmpty()) {
-            return null
+            return@coroutineScope null
         }
 
         val versions = versionsByRepository.values.flatten().distinct()
-        val selectedVersion = versionStrategySelector.select(dependency.version, versions, strategy) ?: return null
+        val selectedVersion = versionStrategySelector.select(dependency.version, versions, strategy) ?: return@coroutineScope null
         val repositories = versionsByRepository
             .filterValues { selectedVersion in it }
             .keys
             .toList()
 
-        return AvailableUpdate(
+        AvailableUpdate(
             dependency = dependency,
             targetVersion = selectedVersion,
             repositories = repositories,
         )
+    }
+
+    private suspend fun emitProgress(
+        progressListener: CrawlProgressListener?,
+        progressLock: Mutex,
+        event: () -> CrawlProgressEvent,
+    ) {
+        if (progressListener == null) {
+            return
+        }
+
+        progressLock.withLock {
+            progressListener.onEvent(event())
+        }
     }
 }
 

@@ -9,6 +9,8 @@ import dev.nevack.krawler.maven.MavenMetadataSource
 import dev.nevack.krawler.model.AvailableUpdate
 import dev.nevack.krawler.model.Gav
 import dev.nevack.krawler.version.VersionStrategySelector
+import java.util.concurrent.atomic.AtomicInteger
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -83,5 +85,50 @@ class DependencyCrawlerTest {
         val finishedEvent = events[1] as CrawlProgressEvent.DependencyFinished
         assertEquals("androidx.core:core-ktx", finishedEvent.dependency.ga)
         assertEquals("1.0.1", finishedEvent.update?.targetVersion)
+    }
+
+    @Test
+    fun `resolves dependencies in parallel`() = runBlocking {
+        val configFile = Files.createTempFile("krawler", ".yml")
+        val inputFile = configFile.parent.resolve("deps.txt")
+        Files.writeString(
+            inputFile,
+            """
+            androidx.core:core-ktx:1.0.0
+            androidx.fragment:fragment-ktx:1.0.0
+            """.trimIndent(),
+        )
+        val activeRequests = AtomicInteger(0)
+        val maxConcurrentRequests = AtomicInteger(0)
+
+        val crawler = DependencyCrawler(
+            inputReader = DependencyInputReader(),
+            metadataSource = object : MavenMetadataSource {
+                override suspend fun fetch(repository: RepositoryConfig, dependency: Gav): MavenMetadata? {
+                    val current = activeRequests.incrementAndGet()
+                    maxConcurrentRequests.updateAndGet { maxOf(it, current) }
+                    try {
+                        delay(100)
+                        return MavenMetadata(versions = listOf("1.0.1"))
+                    } finally {
+                        activeRequests.decrementAndGet()
+                    }
+                }
+            },
+            versionStrategySelector = VersionStrategySelector(),
+        )
+
+        val report = crawler.crawl(
+            MavenKrawlerConfig(
+                strategy = UpdateStrategy.LATEST,
+                repositories = listOf(
+                    RepositoryConfig(id = "google", url = "https://google.example", includeGroups = listOf("androidx.")),
+                ),
+            ),
+            inputFile = inputFile,
+        )
+
+        assertEquals(2, report.updates.size)
+        assertTrue(maxConcurrentRequests.get() > 1)
     }
 }
