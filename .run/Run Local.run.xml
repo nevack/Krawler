@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Run Local" type="JetRunConfigurationType">
     <option name="MAIN_CLASS_NAME" value="dev.nevack.krawler.cli.MainKt" />
-    <module name="cli_main" />
+    <module name="MavenKrawler.cli.main" />
     <option name="PROGRAM_PARAMETERS" value="--config samples/config.yml --input samples/dependencies.txt" />
     <shortenClasspath name="NONE" />
     <method v="2">
