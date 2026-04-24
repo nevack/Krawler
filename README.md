@@ -81,6 +81,54 @@ androidx.fragment:fragment-ktx:1.8.9
 
 Blank lines and `#` comments are ignored.
 
+## Dumping Dependencies From Another Gradle Project
+
+The repository includes a non-configuration-cache-compatible Gradle init script at:
+
+```text
+scripts/dump-gav.init.gradle.kts
+```
+
+You can use it against another Gradle project to produce a dependency input file for Krawler.
+
+### Resolved Dependencies
+
+Dump all resolved external dependencies:
+
+```bash
+./gradlew \
+  -I /path/to/Krawler/scripts/dump-gav.init.gradle.kts \
+  -q dumpResolvedGav > dependencies.txt
+```
+
+### Direct Dependencies Only
+
+Dump only direct external dependencies:
+
+```bash
+./gradlew \
+  -I /path/to/Krawler/scripts/dump-gav.init.gradle.kts \
+  -q dumpDirectGav > dependencies.txt
+```
+
+### Resolved Dependencies Without Test Configurations
+
+Dump resolved dependencies while excluding common test configurations:
+
+```bash
+./gradlew \
+  -I /path/to/Krawler/scripts/dump-gav.init.gradle.kts \
+  -q dumpResolvedGavNoTest > dependencies.txt
+```
+
+All three tasks write one dependency per line in the format accepted by Krawler:
+
+```text
+group:artifact:version
+```
+
+`dumpResolvedGavNoTest` is usually the best default if you want the resolved graph without test-only dependencies.
+
 ## Config
 
 Example config:
