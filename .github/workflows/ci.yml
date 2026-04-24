@@ -34,11 +34,11 @@ jobs:
         uses: gradle/actions/wrapper-validation@v6
 
       - name: Build and test
-        run: ./gradlew --no-daemon test :cli:assemble
+        run: ./gradlew --no-daemon test :cli:shadowJar
 
-      - name: Upload CLI fat jar
+      - name: Upload CLI jar
         uses: actions/upload-artifact@v7
         with:
-          name: cli-fat-jar
-          path: cli/build/libs/*-all.jar
+          name: krawler-jar
+          path: dist/krawler.jar
           if-no-files-found: error
