@@ -6,7 +6,7 @@
 - Fast library-only verification: `./gradlew :core:test`
 - Single test: `./gradlew :core:test --tests 'dev.nevack.krawler.service.DependencyCrawlerTest'`
 - Run the CLI without packaging first: `./gradlew :cli:run --args="--config samples/config.yml --input samples/dependencies.txt"`
-- Build the executable jar with classifier `all`: `./gradlew :cli:fatJar` or `./gradlew :cli:assemble`
+- Build the executable jar at `dist/krawler.jar`: `./gradlew :cli:shadowJar` or `./gradlew :cli:assemble`
 
 ## Project Shape
 - Gradle multi-project build with included build logic in `build-logic/`; shared Kotlin/JVM conventions live there.

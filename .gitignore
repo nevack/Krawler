@@ -13,3 +13,6 @@ out
 
 # Ignore generated sample outputs
 samples/reports/
+
+# Ignore packaged CLI distribution
+dist/

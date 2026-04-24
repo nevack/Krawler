@@ -38,10 +38,16 @@ Build the project:
 ./gradlew test :cli:assemble
 ```
 
+Build just the executable fat jar:
+
+```bash
+./gradlew :cli:shadowJar
+```
+
 Fat jar output:
 
 ```text
-cli/build/libs/cli-0.1.0-all.jar
+dist/krawler.jar
 ```
 
 ## Usage
@@ -49,7 +55,7 @@ cli/build/libs/cli-0.1.0-all.jar
 Run with a YAML config and a dependency input file:
 
 ```bash
-java -jar cli/build/libs/cli-0.1.0-all.jar \
+java -jar dist/krawler.jar \
   --config samples/config.yml \
   --input samples/dependencies.txt
 ```
@@ -57,7 +63,7 @@ java -jar cli/build/libs/cli-0.1.0-all.jar \
 Show help:
 
 ```bash
-java -jar cli/build/libs/cli-0.1.0-all.jar --help
+java -jar dist/krawler.jar --help
 ```
 
 ## Dependency Input

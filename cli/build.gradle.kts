@@ -1,8 +1,6 @@
-import org.gradle.api.file.DuplicatesStrategy
-import org.gradle.jvm.tasks.Jar
-
 plugins {
     id("buildlogic.kotlin-application-conventions")
+    id("com.gradleup.shadow") version "9.4.1"
 }
 
 dependencies {
@@ -18,25 +16,14 @@ application {
     mainClass = "dev.nevack.krawler.cli.MainKt"
 }
 
-val fatJar by tasks.registering(Jar::class) {
+tasks.named<Jar>("shadowJar") {
     group = LifecycleBasePlugin.BUILD_GROUP
     description = "Assembles an executable fat jar for the CLI"
-    archiveClassifier = "all"
+    destinationDirectory = rootProject.layout.projectDirectory.dir("dist").asFile
+    archiveFileName = "krawler.jar"
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-
-    manifest {
-        attributes["Main-Class"] = application.mainClass.get()
-    }
-
-    from(sourceSets.main.get().output)
-    dependsOn(configurations.runtimeClasspath)
-    from({
-        configurations.runtimeClasspath.get()
-            .filter { it.name.endsWith(".jar") }
-            .map { zipTree(it) }
-    })
 }
 
 tasks.assemble {
-    dependsOn(fatJar)
+    dependsOn(tasks.named("shadowJar"))
 }
