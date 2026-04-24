@@ -1,5 +1,5 @@
 group = "dev.nevack.krawler"
-version = "0.1.0"
+version = "0.1.1"
 
 subprojects {
     group = rootProject.group
